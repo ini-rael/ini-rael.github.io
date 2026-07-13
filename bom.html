@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Glowing Tulip Garden - 3D Animation</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #020205; /* Latar belakang sangat gelap */
+            font-family: sans-serif;
+        }
+        #canvas-container {
+            width: 100vw;
+            height: 100vh;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+        #instruksi {
+            position: absolute;
+            top: 20px;
+            width: 100%;
+            text-align: center;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 14px;
+            letter-spacing: 1px;
+            pointer-events: none;
+        }
+    </style>
+    <!-- Memuat pustaka Three.js untuk grafis 3D -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+</head>
+<body>
+
+    <div id="instruksi">Taman Tulip Bercahaya - Tumbuh Otomatis dari Bawah</div>
+    <div id="canvas-container"></div>
+
+    <script>
+        // --- SETUP SCENE, KAMERA, & RENDERER ---
+        const container = document.getElementById('canvas-container');
+        const scene = new THREE.Scene();
+        // Efek kabut gelap untuk kedalaman aura glow
+        scene.fog = new THREE.FogExp2(0x020205, 0.03); 
+
+        const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.set(0, 8, 25);
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        container.appendChild(renderer.domElement);
+
+        // --- ENERGI CAHAYA (LIGHTING) ---
+        const ambientLight = new THREE.AmbientLight(0x0a0518);
+        scene.add(ambientLight);
+
+        // Cahaya panggung utama untuk efek neon/glow
+        const glowLight = new THREE.PointLight(0xff33aa, 3, 40);
+        glowLight.position.set(0, 5, 5);
+        scene.add(glowLight);
+
+        // --- MEMBUAT PARTIKEL TULIP RAMAI & DAUN ---
+        const particleCount = 6000;
+        const geometry = new THREE.BufferGeometry();
+        
+        const positions = new Float32Array(particleCount * 3);
+        const colors = new Float32Array(particleCount * 3);
+        
+        // Data kustom untuk menyimpan animasi pertumbuhan individu
+        const initialY = new Float32Array(particleCount); 
+        const targetY = new Float32Array(particleCount);
+        const types = new Float32Array(particleCount); // 0 = Batang/Daun, 1 = Kelopak Tulip
+
+        const colorTulipOption = [
+            new THREE.Color(0xff3366), // Pink Neon
+            new THREE.Color(0xff6600), // Jingga Glow
+            new THREE.Color(0x9933ff)  // Ungu Magis
+        ];
+        const colorLeaf = new THREE.Color(0x00ffaa); // Hijau Toska Glowing
+
+        for (let i = 0; i < particleCount; i++) {
+            // Tentukan kluster/batang tulip secara acak (bikin ramai)
+            const clusterIndex = Math.floor(i / 150); 
+            const angleCluster = clusterIndex * 0.9 + Math.sin(clusterIndex);
+            const radiusCluster = Math.sqrt(clusterIndex) * 1.5 + (Math.random() * 0.5);
+            
+            // Posisi dasar di area bawah (X dan Z)
+            const baseX = radiusCluster * Math.cos(angleCluster);
+            const baseZ = radiusCluster * Math.sin(angleCluster);
+
+            let x = baseX;
+            let z = baseZ;
+            let yTarget = 0;
+            let type = 0; // Default: daun/batang
+            let finalColor = colorLeaf.clone();
+
+            // Berbagi partikel: sebagian jadi daun menjuntai, sebagian jadi kuncup bunga di atas
+            if (i % 150 < 60) { 
+                // --- KELOPAK BUNGA TULIP (Berada di puncak tinggi) ---
+                type = 1;
+                yTarget = 8 + (Math.sin(clusterIndex) * 3) + (Math.random() * 1.5);
+                
+                // Membentuk kuncup tulip oval kecil menggunakan rumus lingkaran/sinus
+                const petalAngle = Math.random() * Math.PI * 2;
+                const petalRad = 0.4 * Math.sin(Math.random() * Math.PI);
+                x += Math.cos(petalAngle) * petalRad;
+                z += Math.sin(petalAngle) * petalRad;
+                yTarget += Math.random() * 0.8;
+
+                // Pilih warna bunga random agar bervariasi
+                const randomColor = colorTulipOption[clusterIndex % colorTulipOption.length];
+                finalColor = randomColor.clone().multiplyScalar(1.2); // Buat lebih terang
+            } else {
+                // --- DAUN MENJUNTAI DAN BATANG ---
+                yTarget = Math.random() * (6 + (Math.sin(clusterIndex) * 2));
+                
+                // Membuat efek daun melengkung menjuntai lebar keluar
+                const leafWave = Math.sin(yTarget * 0.5) * 1.2;
+                x += Math.cos(angleCluster) * leafWave;
+                z += Math.sin(angleCluster) * leafWave;
+
+                // Gradasi warna daun dari hijau tua di bawah ke hijau neon di atas
+                finalColor.lerp(new THREE.Color(0x003311), 1 - (yTarget / 8));
+            }
+
+            // Atur posisi awal di bawah tanah (y = -5) untuk efek tumbuh ke atas
+            positions[i * 3] = x;
+            positions[i * 3 + 1] = -5; 
+            positions[i * 3 + 2] = z;
+
+            // Simpan target tumbuh ke atas
+            initialY[i] = -5 - (Math.random() * 5); // delay tumbuh acak
+            targetY[i] = yTarget;
+            types[i] = type;
+
+            // Masukkan warna ke array
+            colors[i * 3] = finalColor.r;
+            colors[i * 3 + 1] = finalColor.g;
+            colors[i * 3 + 2] = finalColor.b;
+        }
+
+        geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+        geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+
+        // --- MATERIAL GLOWING EFFECT ---
+        const material = new THREE.PointsMaterial({
+            size: 0.18,
+            vertexColors: true,
+            transparent: true,
+            opacity: 0.9,
+            blending: THREE.AdditiveBlending, // Teknik blending penting agar cahaya partikel menumpuk & glowing
+            depthWrite: false
+        });
+
+        const flowerGarden = new THREE.Points(geometry, material);
+        scene.add(flowerGarden);
+
+        // --- ANIMASI LOOP & PROSES PERTUMBUHAN ---
+        let time = 0;
+        let growthProgress = 0;
+
+        function animate() {
+            requestAnimationFrame(animate);
+            time += 0.01;
+
+            const posAttribute = geometry.attributes.position;
+            
+            // Kecepatan tumbuh dari bawah ke atas
+            if (growthProgress < 1) {
+                growthProgress += 0.003; 
+            }
+
+            for (let i = 0; i < particleCount; i++) {
+                let currentY = posAttribute.getY(i);
+                let tY = targetY[i];
+                let iY = initialY[i];
+
+                // Interpolasi pergerakan posisi Y dari bawah ke atas target secara anggun
+                let targetCurrentProgress = iY + (tY - iY) * growthProgress;
+                
+                if (currentY < targetCurrentProgress) {
+                    currentY += (targetCurrentProgress - currentY) * 0.05;
+                }
+
+                // Efek angin malam lembut (goyang kanan-kiri pelan)
+                let waveX = Math.sin(time + (tY * 0.5)) * 0.02 * (currentY / 5);
+                let currentX = posAttribute.getX(i) + waveX;
+
+                posAttribute.setY(i, currentY);
+                // Hanya goyangkan daun/bunga yang sudah berada di atas tanah
+                if (currentY > 0) {
+                    posAttribute.setX(i, posAttribute.getX(i) + Math.sin(time + i)*0.003);
+                }
+            }
+            posAttribute.needsUpdate = true;
+
+            // Rotasi kamera memutar pelan agar efek 3D-nya terasa nyata
+            flowerGarden.rotation.y = time * 0.05;
+
+            // Cahaya panggung ikut bernafas/pulsing glow
+            glowLight.intensity = 3 + Math.sin(time * 2) * 1.0;
+
+            renderer.render(scene, camera);
+        }
+
+        animate();
+
+        // --- RESPONSIVE SCREEN ---
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    </script>
+</body>
+</html>
