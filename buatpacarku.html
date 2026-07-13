@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Glowing Flower Bouquet</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #050505;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        #canvas-container {
+            width: 100vw;
+            height: 100vh;
+        }
+        #teks {
+            position: absolute;
+            bottom: 10%;
+            width: 100%;
+            text-align: center;
+            color: #fff;
+            font-size: 20px;
+            font-weight: 300;
+            letter-spacing: 2px;
+            text-shadow: 0 0 10px rgba(255,105,180,0.8), 0 0 20px rgba(255,105,180,0.5);
+            opacity: 0;
+            transition: opacity 5s ease-in-out;
+            pointer-events: none;
+        }
+    </style>
+    <!-- Memuat Three.js untuk grafis 3D -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+</head>
+<body>
+
+    <div id="teks">I hope he buys you flowers, I hope he holds your hand...</div>
+    <div id="canvas-container"></div>
+
+    <script>
+        // Setup Scene, Kamera, dan Renderer
+        const container = document.getElementById('canvas-container');
+        const scene = new THREE.Scene();
+        scene.fog = new THREE.FogExp2(0x050505, 0.015);
+
+        const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.z = 30;
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        container.appendChild(renderer.domElement);
+
+        // Pencahayaan (Lighting) untuk efek Realisme & Glow
+        const ambientLight = new THREE.AmbientLight(0x331122);
+        scene.add(ambientLight);
+
+        const pointLight = new THREE.PointLight(0xff69b4, 2, 50);
+        pointLight.position.set(0, 0, 10);
+        scene.add(pointLight);
+
+        const blueLight = new THREE.PointLight(0x00ffff, 1.5, 50);
+        blueLight.position.set(0, -10, 5);
+        scene.add(blueLight);
+
+        // Membuat Kelopak Bunga Banyak (Buket) menggunakan Partikel 3D
+        const particleCount = 3000;
+        const geometry = new THREE.BufferGeometry();
+        const positions = new Float32Array(particleCount * 3);
+        const colors = new Float32Array(particleCount * 3);
+        const sizes = new Float32Array(particleCount);
+
+        const colorTarget = new THREE.Color(0xffb6c1); // Warna pink neon/glow
+
+        for (let i = 0; i < particleCount; i++) {
+            // Formula matematika (Fermat's Spiral/Fibonacci) untuk membentuk pola buket bunga padat
+            const phi = i * 137.5 * (Math.PI / 180);
+            const radius = Math.sqrt(i) * 0.25;
+            
+            // Efek 3D bergelombang seperti kelopak mawar
+            const x = radius * Math.cos(phi);
+            const z = radius * Math.sin(phi);
+            const y = Math.sin(radius * 0.5) * 2 - (radius * 0.1); 
+
+            positions[i * 3] = x;
+            positions[i * 3 + 1] = y;
+            positions[i * 3 + 2] = z;
+
+            // Variasi warna gradasi glow (pink ke ungu/biru)
+            const mixedColor = colorTarget.clone().lerp(new THREE.Color(0x9370db), Math.random() * 0.5);
+            colors[i * 3] = mixedColor.r;
+            colors[i * 3 + 1] = mixedColor.g;
+            colors[i * 3 + 2] = mixedColor.b;
+
+            sizes[i] = Math.random() * 0.4 + 0.1;
+        }
+
+        geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+        geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+
+        // Material partikel yang bersinar (Glow effect)
+        const material = new THREE.PointsMaterial({
+            size: 0.5,
+            vertexColors: true,
+            transparent: true,
+            opacity: 0, // Mulai dari transparan (perlahan muncul)
+            blending: THREE.AdditiveBlending, // Membuat efek cahaya bertumpuk/glowing
+            depthWrite: false
+        });
+
+        const bouquet = new THREE.Points(geometry, material);
+        scene.add(bouquet);
+
+        // Animasi muncul perlahan (Fade In)
+        let muncul = 0;
+        setTimeout(() => {
+            document.getElementById('teks').style.opacity = '1';
+        }, 3000);
+
+        // Loop Animasi untuk rotasi 3D
+        function animate() {
+            requestAnimationFrame(animate);
+
+            // Muncul perlahan
+            if (material.opacity < 0.9) {
+                material.opacity += 0.003;
+            }
+
+            // Buket berputar pelan secara 3D
+            bouquet.rotation.y += 0.005;
+            bouquet.rotation.x = Math.sin(Date.now() * 0.0005) * 0.2;
+
+            // Efek lampu berkedip/bergetar lembut (pulsing glow)
+            pointLight.intensity = 2 + Math.sin(Date.now() * 0.003) * 0.5;
+
+            renderer.render(scene, camera);
+        }
+
+        animate();
+
+        // Mengatur ulang ukuran jika jendela browser diubah
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    </script>
+</body>
+</html>
