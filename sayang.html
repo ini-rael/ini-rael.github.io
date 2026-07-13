@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spesial Buat Kamu 🌹</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            margin: 0;
+            padding: 0;
+            background: radial-gradient(circle at center, #1a050d 0%, #070104 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow-x: hidden;
+            padding: 20px;
+            color: #fff;
+        }
+
+        /* Container Pesan Romantis */
+        .message-box {
+            background: rgba(255, 255, 255, 0.06);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            padding: 25px 20px;
+            border-radius: 20px;
+            box-shadow: 0 8px 32px 0 rgba(255, 71, 126, 0.2);
+            text-align: center;
+            max-width: 90%;
+            width: 420px;
+            z-index: 10;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 20px;
+            animation: fadeIn 2s ease-in-out;
+        }
+
+        h1 {
+            color: #ff477e;
+            font-size: 1.25rem;
+            line-height: 1.6;
+            margin: 0;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+            text-shadow: 0 0 10px rgba(255, 71, 126, 0.5);
+        }
+
+        /* Container Bunga Rame */
+        .rose-garden {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            width: 100%;
+            max-width: 600px;
+            margin-top: 10px;
+        }
+
+        /* Animasi Muter & Goyang Realistis */
+        .rose-card {
+            position: relative;
+            width: 140px;
+            height: 260px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            animation: floatAndSpin 8s infinite ease-in-out alternate;
+        }
+
+        .rose-card:nth-child(2) {
+            animation-delay: -2s;
+            animation-duration: 9s;
+        }
+
+        .rose-card:nth-child(3) {
+            animation-delay: -4s;
+            animation-duration: 7s;
+        }
+
+        /* Desain Mawar Realistis Lapis 3D */
+        .rose-flower {
+            position: relative;
+            width: 100px;
+            height: 100px;
+            animation: spinOnly 20s infinite linear;
+        }
+
+        .rose-card:nth-child(even) .rose-flower {
+            animation-direction: reverse;
+            animation-duration: 25s;
+        }
+
+        .petal {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            background: radial-gradient(circle at 40% 40%, #ff0f4b 0%, #b3002d 50%, #660014 100%);
+            border-radius: 50% 50% 50% 50% / 55% 55% 45% 45%;
+            transform-origin: center center;
+            box-shadow: inset 2px 2px 6px rgba(255,255,255,0.2), 0 4px 10px rgba(0,0,0,0.5);
+        }
+
+        /* Lapisan Kelopak Luar sampai Dalam biar Realistis Kelap-kelip 3D */
+        .p-1 { width: 90px; height: 90px; margin-top: -45px; margin-left: -45px; transform: rotate(0deg); }
+        .p-2 { width: 90px; height: 90px; margin-top: -45px; margin-left: -45px; transform: rotate(60deg); }
+        .p-3 { width: 90px; height: 90px; margin-top: -45px; margin-left: -45px; transform: rotate(120deg); }
+        
+        .p-4 { width: 75px; height: 75px; margin-top: -37.5px; margin-left: -37.5px; transform: rotate(30deg); background: radial-gradient(circle at 40% 40%, #ff2e63 0%, #cc0033 60%, #80001e 100%); }
+        .p-5 { width: 75px; height: 75px; margin-top: -37.5px; margin-left: -37.5px; transform: rotate(90deg); background: radial-gradient(circle at 40% 40%, #ff2e63 0%, #cc0033 60%, #80001e 100%); }
+        .p-6 { width: 75px; height: 75px; margin-top: -37.5px; margin-left: -37.5px; transform: rotate(150deg); background: radial-gradient(circle at 40% 40%, #ff2e63 0%, #cc0033 60%, #80001e 100%); }
+
+        .p-7 { width: 55px; height: 55px; margin-top: -27.5px; margin-left: -27.5px; transform: rotate(15deg); background: radial-gradient(circle at 40% 40%, #ff4d79 0%, #e6003c 70%, #990024 100%); }
+        .p-8 { width: 55px; height: 55px; margin-top: -27.5px; margin-left: -27.5px; transform: rotate(75deg); background: radial-gradient(circle at 40% 40%, #ff4d79 0%, #e6003c 70%, #990024 100%); }
+
+        .p-center {
+            width: 30px;
+            height: 30px;
+            margin-top: -15px;
+            margin-left: -15px;
+            background: radial-gradient(circle at center, #ff7597 0%, #b3002d 80%, #4d000f 100%);
+            border-radius: 50%;
+            box-shadow: inset 0 0 5px rgba(0,0,0,0.5);
+        }
+
+        /* Tangkai Realistis */
+        .stem {
+            width: 4px;
+            height: 160px;
+            background: linear-gradient(to bottom, #1e4620, #0f2a11);
+            border-radius: 2px;
+            position: relative;
+            margin-top: -5px;
+            z-index: -1;
+        }
+
+        /* Daun Realistis */
+        .leaf {
+            position: absolute;
+            width: 30px;
+            height: 18px;
+            background: linear-gradient(135deg, #2d6a4f 0%, #1b4332 100%);
+            border-radius: 50% 0 50% 0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        }
+
+        .leaf.left {
+            left: -26px;
+            top: 40px;
+            transform: rotate(-20deg);
+        }
+
+        .leaf.right {
+            right: -26px;
+            top: 70px;
+            transform: rotate(50deg);
+            border-radius: 0 50% 0 50%;
+        }
+
+        /* Duri */
+        .thorn {
+            position: absolute;
+            width: 0;
+            height: 0;
+            border-left: 4px solid transparent;
+            border-right: 4px solid transparent;
+            border-bottom: 7px solid #1b4332;
+        }
+        .thorn.left { left: -3px; top: 25px; transform: rotate(-90deg); }
+        .thorn.right { right: -3px; top: 95px; transform: rotate(90deg); }
+
+        /* Keterangan Interaktif di Layar */
+        .hint {
+            margin-top: 30px;
+            font-size: 0.85rem;
+            color: rgba(255,255,255,0.4);
+            letter-spacing: 1px;
+            animation: pulse 2s infinite;
+        }
+
+        /* Animasi Keyframes */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        @keyframes floatAndSpin {
+            0% { transform: translateY(0) rotate(-2deg); }
+            100% { transform: translateY(-12px) rotate(2deg); }
+        }
+
+        @keyframes spinOnly {
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.7; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="message-box">
+        <h1>"aku bingung harus pake cara apa lagi buat ngungkapin rasa sayang aku ke kamu, aku selalu sayang kamu ntik"</h1>
+    </div>
+
+    <div class="rose-garden">
+        <!-- Mawar Realistis 1 -->
+        <div class="rose-card">
+            <div class="rose-flower">
+                <div class="petal p-1"></div><div class="petal p-2"></div><div class="petal p-3"></div>
+                <div class="petal p-4"></div><div class="petal p-5"></div><div class="petal p-6"></div>
+                <div class="petal p-7"></div><div class="petal p-8"></div>
+                <div class="petal p-center"></div>
+            </div>
+            <div class="stem">
+                <div class="leaf left"></div>
+                <div class="leaf right"></div>
+                <div class="thorn left"></div>
+            </div>
+        </div>
+
+        <!-- Mawar Realistis 2 -->
+        <div class="rose-card">
+            <div class="rose-flower">
+                <div class="petal p-1"></div><div class="petal p-2"></div><div class="petal p-3"></div>
+                <div class="petal p-4"></div><div class="petal p-5"></div><div class="petal p-6"></div>
+                <div class="petal p-7"></div><div class="petal p-8"></div>
+                <div class="petal p-center"></div>
+            </div>
+            <div class="stem">
+                <div class="leaf right"></div>
+                <div class="thorn right"></div>
+            </div>
+        </div>
+
+        <!-- Mawar Realistis 3 -->
+        <div class="rose-card">
+            <div class="rose-flower">
+                <div class="petal p-1"></div><div class="petal p-2"></div><div class="petal p-3"></div>
+                <div class="petal p-4"></div><div class="petal p-5"></div><div class="petal p-6"></div>
+                <div class="petal p-7"></div><div class="petal p-8"></div>
+                <div class="petal p-center"></div>
+            </div>
+            <div class="stem">
+                <div class="leaf left"></div>
+                <div class="thorn left"></div>
+                <div class="thorn right"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="hint">🌹 khusus dibuat untuk menemanimu 🌹</div>
+
+</body>
+</html>
